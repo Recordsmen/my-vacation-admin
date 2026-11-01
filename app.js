@@ -170,6 +170,18 @@ async function onToken(resp) {
   load();
 }
 
+// Sessions saved before `missing` existed: ask Google which scopes the token has.
+async function checkScopes() {
+  if (!auth || auth.missing) return;
+  try {
+    const info = await (await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(auth.token)}`)).json();
+    const granted = new Set((info.scope || "").split(" "));
+    auth.missing = Object.keys(SCOPE_NAMES).filter((s) => !granted.has(s)).map((s) => SCOPE_NAMES[s]);
+    writeJson(sessionStorage, TOKEN_KEY, auth);
+    syncControls();
+  } catch { /* the cards still say what failed */ }
+}
+
 function signOut() {
   if (auth?.token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(auth.token, () => {});
   auth = null;
@@ -447,4 +459,5 @@ function wire() {
 wire();
 syncControls();
 initAuth();
+checkScopes();
 load();

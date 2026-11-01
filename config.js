@@ -6,7 +6,7 @@
 window.MV_CONFIG = {
   // OAuth 2.0 Web client in Google Cloud project my-vacation-olik (Google Auth
   // Platform → Clients). Authorized JavaScript origin: https://recordsmen.github.io
-  clientId: "",
+  clientId: "318644605011-p2nt74k28t0pdllk0mo1ah4fbr74qeqg.apps.googleusercontent.com",
 
   // GA4 property of the Firebase project (numeric id). Empty = find it at sign-in
   // through the Analytics Admin API (the property linked to firebaseProjectNumber).

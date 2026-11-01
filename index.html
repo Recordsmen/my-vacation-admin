@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>My Vacation · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://accounts.google.com/gsi/client" async></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-sun"></span>
+      <span class="brand-name">My Vacation</span>
+      <span class="brand-sub">Admin</span>
+    </div>
+    <div class="topbar-actions">
+      <label class="switch" title="Fill every card from bundled fake data">
+        <input id="demo-toggle" type="checkbox" />
+        <span class="switch-track"></span>
+        <span>Demo data</span>
+      </label>
+      <span id="user-email" class="user-email" hidden></span>
+      <button id="btn-signin" class="btn btn-primary">Sign in with Google</button>
+      <button id="btn-signout" class="btn btn-ghost" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <div id="demo-banner" class="demo-banner" hidden>
+    <strong>Demo data</strong> — every number on this page is fake, from <code>demo-data.json</code>. Switch “Demo data” off to see real analytics.
+  </div>
+
+  <section class="filters" aria-label="Filters">
+    <div class="seg" id="range-seg" role="group" aria-label="Date range">
+      <button data-range="today">Today</button>
+      <button data-range="7d" class="active">7 d</button>
+      <button data-range="30d">30 d</button>
+      <button data-range="custom">Custom</button>
+    </div>
+    <div id="custom-range" class="custom-range" hidden>
+      <input id="date-start" type="date" aria-label="Start date" />
+      <span>→</span>
+      <input id="date-end" type="date" aria-label="End date" />
+    </div>
+    <div class="seg" id="platform-seg" role="group" aria-label="Platform">
+      <button data-platform="all" class="active">Both</button>
+      <button data-platform="android">Android</button>
+      <button data-platform="ios">iOS</button>
+    </div>
+    <label class="check"><input id="qa-toggle" type="checkbox" /> Include QA devices</label>
+    <span class="spacer"></span>
+    <span id="range-label" class="range-label"></span>
+    <button id="btn-refresh" class="btn btn-ghost">Refresh</button>
+  </section>
+
+  <main id="dashboard" class="dashboard">
+    <div id="signin-hint" class="notice" hidden>
+      Sign in with the Google account that owns the Firebase project to load real data, or switch on demo data.
+    </div>
+    <!-- cards injected by app.js -->
+  </main>
+
+  <footer class="foot">
+    Data: GA4 Data API (Firebase Analytics) · Crashlytics BigQuery export. Your Google token stays in this tab; the page holds no keys.
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="sources.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

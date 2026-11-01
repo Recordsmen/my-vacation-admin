@@ -1,0 +1,77 @@
+{
+  "_comment": "FAKE numbers for judging the layout. Counts are for 30 days per platform; the page scales them to the chosen range. Crashes are not scaled.",
+  "days": 30,
+  "android": {
+    "topline": { "activeUsers": 842, "newUsers": 613, "vacationsCreated": 524, "vacationsRevealed": 176 },
+    "funnel": [
+      { "key": "vacation_created", "users": 498 },
+      { "key": "photo_sealed", "users": 431 },
+      { "key": "day_captured_shown", "users": 302 },
+      { "key": "vacation_finished", "users": 197 },
+      { "key": "vacation_revealed", "users": 171 },
+      { "key": "share_completed", "users": 88 }
+    ],
+    "slots": {
+      "sealed": { "morning": 2140, "day": 2610, "evening": 2380 },
+      "missed": { "morning": 690, "day": 410, "evening": 520 }
+    },
+    "sources": { "camera": 5260, "gallery": 1870 },
+    "rejections": { "too_old": 212, "wrong_day": 148, "no_date": 96, "duplicate": 41 },
+    "reminders": { "morning": 820, "day": 640, "evening": 910, "last_day": 120 },
+    "shareKind": { "collage": 64, "album": 22, "photo": 37 },
+    "shareTarget": { "instagram": 41, "whatsapp": 33, "telegram": 29, "save": 12, "other": 8 },
+    "collages": { "polaroid": 210, "grid": 168, "filmstrip": 121, "postcard": 94 },
+    "languages": { "en": 301, "ru": 214, "de": 96, "es": 88, "pt": 61, "it": 44, "fr": 38 },
+    "vacationTypes": { "beach": 182, "city": 141, "mountains": 96, "road_trip": 63, "other": 42 }
+  },
+  "ios": {
+    "topline": { "activeUsers": 1264, "newUsers": 902, "vacationsCreated": 791, "vacationsRevealed": 288 },
+    "funnel": [
+      { "key": "vacation_created", "users": 751 },
+      { "key": "photo_sealed", "users": 668 },
+      { "key": "day_captured_shown", "users": 489 },
+      { "key": "vacation_finished", "users": 322 },
+      { "key": "vacation_revealed", "users": 283 },
+      { "key": "share_completed", "users": 161 }
+    ],
+    "slots": {
+      "sealed": { "morning": 3420, "day": 4010, "evening": 3760 },
+      "missed": { "morning": 980, "day": 560, "evening": 690 }
+    },
+    "sources": { "camera": 8140, "gallery": 3050 },
+    "rejections": { "too_old": 301, "wrong_day": 197, "no_date": 154, "duplicate": 62 },
+    "reminders": { "morning": 1240, "day": 980, "evening": 1390, "last_day": 210 },
+    "shareKind": { "collage": 118, "album": 41, "photo": 66 },
+    "shareTarget": { "instagram": 88, "whatsapp": 49, "telegram": 31, "messages": 37, "save": 14, "other": 6 },
+    "collages": { "polaroid": 388, "grid": 270, "filmstrip": 214, "postcard": 162 },
+    "languages": { "en": 512, "ru": 233, "de": 151, "fr": 102, "es": 97, "ja": 71, "it": 58, "pt": 40 },
+    "vacationTypes": { "beach": 274, "city": 236, "mountains": 128, "road_trip": 91, "other": 62 }
+  },
+  "crashes": {
+    "android": {
+      "versions": [
+        { "version": "1.0.2", "activeUsers": 512, "crashedUsers": 2 },
+        { "version": "1.0.1", "activeUsers": 241, "crashedUsers": 4 },
+        { "version": "1.0.0", "activeUsers": 89, "crashedUsers": 3 }
+      ],
+      "issues": [
+        { "id": "demo-a1", "title": "CameraController.kt line 214", "subtitle": "java.lang.IllegalStateException: Camera closed", "type": "FATAL", "events": 9, "users": 6, "lastSeen": "2026-10-31T18:22:00Z" },
+        { "id": "demo-a2", "title": "PhotoStore.kt line 88", "subtitle": "java.io.IOException: No space left on device", "type": "FATAL", "events": 4, "users": 3, "lastSeen": "2026-10-30T09:05:00Z" },
+        { "id": "demo-a3", "title": "Input dispatching timed out", "subtitle": "ANR in com.olikbobik.myvacation", "type": "ANR", "events": 3, "users": 3, "lastSeen": "2026-10-29T21:40:00Z" },
+        { "id": "demo-a4", "title": "ExifReader.kt line 41", "subtitle": "java.lang.NumberFormatException", "type": "NON_FATAL", "events": 2, "users": 2, "lastSeen": "2026-10-27T12:11:00Z" }
+      ]
+    },
+    "ios": {
+      "versions": [
+        { "version": "1.0.2", "activeUsers": 803, "crashedUsers": 1 },
+        { "version": "1.0.1", "activeUsers": 376, "crashedUsers": 3 },
+        { "version": "1.0.0", "activeUsers": 85, "crashedUsers": 1 }
+      ],
+      "issues": [
+        { "id": "demo-i1", "title": "RevealScene.swift line 132", "subtitle": "EXC_BAD_ACCESS KERN_INVALID_ADDRESS", "type": "FATAL", "events": 5, "users": 4, "lastSeen": "2026-10-31T07:48:00Z" },
+        { "id": "demo-i2", "title": "ComposeWindow.uikit", "subtitle": "kotlin.IllegalStateException: Already resumed", "type": "FATAL", "events": 2, "users": 2, "lastSeen": "2026-10-28T15:30:00Z" },
+        { "id": "demo-i3", "title": "CollageRenderer.kt line 57", "subtitle": "OutOfMemory while rendering", "type": "NON_FATAL", "events": 2, "users": 1, "lastSeen": "2026-10-26T19:02:00Z" }
+      ]
+    }
+  }
+}

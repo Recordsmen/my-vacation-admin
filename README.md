@@ -42,12 +42,13 @@ needs `http://localhost:8791` in the OAuth client's authorized JavaScript origin
 3. **OAuth client**: type *Web application*, authorized JavaScript origin
    `https://recordsmen.github.io` (+ `http://localhost:8791` for local runs). Its
    client ID goes into `config.js` → `clientId`. No client secret is used.
-4. **Google Analytics** linked to the Firebase project. `ga4PropertyId` in
-   `config.js` can stay empty: at sign-in the page asks the Analytics Admin API for
-   the property whose Firebase link is project `318644605011`.
+4. **Google Analytics** linked to the Firebase project: property
+   `my-vacation-olik` (561854281), set as `ga4PropertyId` in `config.js`. If it's
+   left empty, the page asks the Analytics Admin API at sign-in for the property
+   whose Firebase link is project `318644605011`.
 5. **GA4 custom dimensions** (GA4 → Admin → Data display → Custom definitions).
    Without them the Data API can't group by event parameters, and the affected card
-   says which one is missing.
+   says which one is missing. Registered on 1 Nov 2026; they only fill from that day.
 
    | Scope | Dimension = parameter / user property |
    |-------|---------------------------------------|
@@ -57,7 +58,8 @@ needs `http://localhost:8791` in the OAuth client's authorized JavaScript origin
    Optional (not used by cards yet): `planned_days`, `reminders_on`, `day_index`,
    `early`, `days`, `photos`, `skipped_animation`, `action`; user `vacations_total`.
 6. **Crashlytics → BigQuery**: Firebase console → Project settings → Integrations →
-   BigQuery → Crashlytics on (daily batch export, free sandbox). Tables
+   BigQuery → Crashlytics on (daily batch export, free sandbox, region US; the GA4
+   daily export is on too, as dataset `analytics_561854281`). Tables
    `firebase_crashlytics.com_olikbobik_myvacation_ANDROID` / `_IOS` appear after the
    first exported event; until then the Crashes card says so. In the sandbox
    (no billing) tables keep 60 days of partitions.

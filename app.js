@@ -69,6 +69,16 @@ function human(key) {
 function language(code) {
   try { return langNames?.of(code) || code; } catch { return code; }
 }
+// share_completed.target is a package id / iOS activity type, or "system".
+const TARGETS = {
+  "com.instagram.android": "Instagram", "com.burbn.instagram.shareextension": "Instagram",
+  "com.whatsapp": "WhatsApp", "net.whatsapp.WhatsApp.ShareExtension": "WhatsApp",
+  "org.telegram.messenger": "Telegram", "ph.telegra.Telegraph.Share": "Telegram",
+  "com.google.android.apps.photos": "Google Photos",
+  "com.apple.UIKit.activity.Message": "Messages", "com.apple.UIKit.activity.SaveToCameraRoll": "Save to Photos",
+  "com.apple.UIKit.activity.AirDrop": "AirDrop", system: "System sheet",
+};
+const target = (id) => TARGETS[id] || id;
 function relDate(isoStr) {
   const d = new Date(isoStr), days = Math.floor((Date.now() - d) / 86_400_000);
   const when = days <= 0 ? "today" : days === 1 ? "yesterday" : `${days} d ago`;
@@ -339,7 +349,7 @@ function render(m, errors, range) {
     card("Rejected photos", m.rejections ? barList(m.rejections) : "", { key: "rejections", errors, empty: isEmpty(m.rejections), sub: "Gallery picks refused, by reason." }),
     card("Reminders opened", m.reminders ? barList(m.reminders) : "", { key: "reminders", errors, empty: isEmpty(m.reminders), sub: "By slot (or kind for non-slot reminders)." }),
     card("Shares by kind", m.shareKind ? barList(m.shareKind) : "", { key: "shareKind", errors, empty: isEmpty(m.shareKind) }),
-    card("Shares by target", m.shareTarget ? barList(m.shareTarget) : "", { key: "shareTarget", errors, empty: isEmpty(m.shareTarget) }),
+    card("Shares by target", m.shareTarget ? barList(m.shareTarget, { label: target }) : "", { key: "shareTarget", errors, empty: isEmpty(m.shareTarget) }),
     card("Collage styles viewed", m.collages ? barList(m.collages) : "", { key: "collages", errors, empty: isEmpty(m.collages) }),
     card("Crashes", Object.keys(crashes).map((p) => crashPlatformHtml(p, crashes[p])).join(""), { span: 12, key: "crashes", errors,
       sub: "Crash-free users = 1 − users with a fatal crash ÷ active users of that version (GA4, QA devices included). Crashlytics data arrives by daily BigQuery export." }),

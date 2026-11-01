@@ -10,7 +10,7 @@ window.MV_CONFIG = {
 
   // GA4 property of the Firebase project (numeric id). Empty = find it at sign-in
   // through the Analytics Admin API (the property linked to firebaseProjectNumber).
-  ga4PropertyId: "",
+  ga4PropertyId: "561854281",
   firebaseProjectNumber: "318644605011",
 
   // BigQuery: Crashlytics export. Tables appear after the first event is exported.

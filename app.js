@@ -79,6 +79,12 @@ const TARGETS = {
   "com.apple.UIKit.activity.AirDrop": "AirDrop", system: "System sheet",
 };
 const target = (id) => TARGETS[id] || id;
+// Sums a map under new keys (e.g. both Instagram ids → "Instagram").
+function regroup(obj, keyFn) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) out[keyFn(k)] = (out[keyFn(k)] || 0) + v;
+  return out;
+}
 function relDate(isoStr) {
   const d = new Date(isoStr), days = Math.floor((Date.now() - d) / 86_400_000);
   const when = days <= 0 ? "today" : days === 1 ? "yesterday" : `${days} d ago`;
@@ -102,7 +108,7 @@ function scaleModel(m, f) {
 }
 
 async function loadDemo(range) {
-  demoData ||= await (await fetch("demo-data.json")).json();
+  demoData ||= await (await fetch("demo-data.json", { cache: "no-cache" })).json();
   const base = prefs.platform === "all" ? addModels(demoData.android, demoData.ios) : demoData[prefs.platform];
   const model = scaleModel(base, range.days / demoData.days);
   const platforms = prefs.platform === "all" ? ["android", "ios"] : [prefs.platform];
@@ -349,7 +355,7 @@ function render(m, errors, range) {
     card("Rejected photos", m.rejections ? barList(m.rejections) : "", { key: "rejections", errors, empty: isEmpty(m.rejections), sub: "Gallery picks refused, by reason." }),
     card("Reminders opened", m.reminders ? barList(m.reminders) : "", { key: "reminders", errors, empty: isEmpty(m.reminders), sub: "By slot (or kind for non-slot reminders)." }),
     card("Shares by kind", m.shareKind ? barList(m.shareKind) : "", { key: "shareKind", errors, empty: isEmpty(m.shareKind) }),
-    card("Shares by target", m.shareTarget ? barList(m.shareTarget, { label: target }) : "", { key: "shareTarget", errors, empty: isEmpty(m.shareTarget) }),
+    card("Shares by target", m.shareTarget ? barList(regroup(m.shareTarget, target), { label: String }) : "", { key: "shareTarget", errors, empty: isEmpty(m.shareTarget) }),
     card("Collage styles viewed", m.collages ? barList(m.collages) : "", { key: "collages", errors, empty: isEmpty(m.collages) }),
     card("Crashes", Object.keys(crashes).map((p) => crashPlatformHtml(p, crashes[p])).join(""), { span: 12, key: "crashes", errors,
       sub: "Crash-free users = 1 − users with a fatal crash ÷ active users of that version (GA4, QA devices included). Crashlytics data arrives by daily BigQuery export." }),

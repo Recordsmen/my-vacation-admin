@@ -140,14 +140,26 @@ function initAuth() {
 
 function signIn() {
   if (!tokenClient) return toast("Google sign-in is still loading — try again in a second.");
-  tokenClient.requestAccessToken({ prompt: "" });
+  tokenClient.requestAccessToken({ prompt: "select_account" });
 }
+
+// Google's consent screen has a checkbox per scope; unticked ones aren't granted.
+function regrant() {
+  tokenClient?.requestAccessToken({ prompt: "consent" });
+}
+
+const SCOPE_NAMES = {
+  "https://www.googleapis.com/auth/analytics.readonly": "Google Analytics",
+  "https://www.googleapis.com/auth/bigquery.readonly": "BigQuery",
+};
 
 async function onToken(resp) {
   if (resp.error) return toast(`Sign-in failed: ${resp.error}`);
   const missing = cfg.scopes.filter((s) => s.startsWith("https://") && !google.accounts.oauth2.hasGrantedAllScopes(resp, s));
-  if (missing.length) toast(`Not granted: ${missing.map((s) => s.split("/").pop()).join(", ")} — some cards will fail.`);
-  auth = { token: resp.access_token, exp: Date.now() + Number(resp.expires_in) * 1000, email: "" };
+  auth = {
+    token: resp.access_token, exp: Date.now() + Number(resp.expires_in) * 1000, email: "",
+    missing: missing.map((s) => SCOPE_NAMES[s] || s),
+  };
   try {
     const me = await (await fetch("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { Authorization: `Bearer ${auth.token}` } })).json();
     auth.email = me.email || "";
@@ -202,7 +214,12 @@ async function load() {
 function card(title, body, { span = 4, sub = "", key = "", errors = {}, empty = false, data = true } = {}) {
   const err = errors[key] || errors._all;
   let content = body;
-  if (err) content = `<div class="card-error"><strong>Couldn’t load.</strong> ${esc(err.message)}</div>`;
+  if (err) {
+    const msg = err.status === 403 && /insufficient authentication scopes/i.test(err.message)
+      ? "Google access for this card wasn’t granted at sign-in. Use “Grant access” above and tick every box."
+      : err.message;
+    content = `<div class="card-error"><strong>Couldn’t load.</strong> ${esc(msg)}</div>`;
+  }
   else if (empty) content = `<div class="card-empty">No data in this range yet.</div>`;
   return `<section class="card span-${span}">
     <header class="card-head"><h2>${esc(title)}</h2>${prefs.demo && data ? '<span class="demo-pill">demo</span>' : ""}</header>
@@ -385,6 +402,9 @@ function syncControls() {
   $("#btn-signout").hidden = !auth;
   $("#user-email").hidden = !auth;
   $("#user-email").textContent = auth?.email || "Signed in";
+  const missing = (!prefs.demo && auth?.missing) || [];
+  $("#scope-notice").hidden = !missing.length;
+  $("#scope-missing").textContent = missing.join(" and ");
 }
 
 let toastTimer;
@@ -421,6 +441,7 @@ function wire() {
   $("#btn-refresh").addEventListener("click", load);
   $("#btn-signin").addEventListener("click", signIn);
   $("#btn-signout").addEventListener("click", signOut);
+  $("#btn-regrant").addEventListener("click", regrant);
 }
 
 wire();

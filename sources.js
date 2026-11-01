@@ -242,9 +242,8 @@ async function loadCrashes(ctx) {
     if (p) users[p][r.d[1]] = r.m[0];
   }
   const platforms = ctx.f.platform === "all" ? ["android", "ios"] : [ctx.f.platform];
-  const out = {};
-  await Promise.all(platforms.map(async (p) => { out[p] = await crashesFor(ctx, p, users[p]); }));
-  return out;
+  const data = await Promise.all(platforms.map((p) => crashesFor(ctx, p, users[p])));
+  return Object.fromEntries(platforms.map((p, i) => [p, data[i]])); // Android first
 }
 
 // ── Public entry ─────────────────────────────────────────────────────────────

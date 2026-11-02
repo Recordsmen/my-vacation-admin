@@ -6,7 +6,7 @@
  * registered yet, or no Crashlytics table) turns only that card into an error.
  *
  * MODEL — the shape both the real loader and demo-data.json produce:
- *   topline      { activeUsers, newUsers, vacationsCreated, vacationsRevealed }
+ *   topline      { activeUsers, realUsers, newUsers, vacationsCreated, vacationsRevealed }
  *   funnel       [{ key, users }]                       (FUNNEL order)
  *   slots        { sealed: {morning,day,evening}, missed: {…} }
  *   sources      { camera, gallery }
@@ -21,6 +21,7 @@
  */
 
 const FUNNEL = [
+  { key: "onboarding_done", label: "Finished onboarding" },
   { key: "vacation_created", label: "Created a vacation" },
   { key: "photo_sealed", label: "Sealed ≥1 photo" },
   { key: "day_captured_shown", label: "Full day (3/3)" },
@@ -111,15 +112,25 @@ function tally(rows, di = 0, mj = 0) {
   return out;
 }
 
+// Emulators and simulators: no model (Android SDK images often report none), the bare "iPhone"/"iPad"
+// of the iOS simulator, or an SDK image name. Builds from 1.0.0 (4) don't send from them at all.
+function isTestModel(model) {
+  const m = (model || "").trim();
+  return !m || m === "(not set)" || m === "iPhone" || m === "iPad" || /sdk_gphone|Android SDK built for|Emulator|Simulator/i.test(m);
+}
+
 const GA_SECTIONS = {
   async topline(ctx) {
-    const [[users], events] = await Promise.all([
+    const [[users], events, models] = await Promise.all([
       runReport(ctx, { metrics: ["activeUsers", "newUsers"] }),
       runReport(ctx, { dimensions: ["eventName"], metrics: ["eventCount"], eventNames: ["vacation_created", "vacation_revealed"] }),
+      // Real users: QA devices out whatever the toggle says, emulators and simulators out by model.
+      runReport(ctx, { dimensions: ["deviceModel"], metrics: ["activeUsers"], qa: true }),
     ]);
     const ev = tally(events);
     return {
       activeUsers: users ? users.m[0] : 0,
+      realUsers: models.filter((r) => !isTestModel(r.d[0])).reduce((n, r) => n + r.m[0], 0),
       newUsers: users ? users.m[1] : 0,
       vacationsCreated: ev.vacation_created || 0,
       vacationsRevealed: ev.vacation_revealed || 0,

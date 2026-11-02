@@ -85,8 +85,10 @@ BigQuery dataset (the project owner has both).
   *Include QA devices* is on. Crashlytics can't see that property, so crash-free %
   uses all users.
 - **Funnel:** users who fired each step's event in the range (open funnel, not a
-  strict sequence): `vacation_created` → `photo_sealed` → `day_captured_shown`
+  strict sequence): `onboarding_done` → `vacation_created` → `photo_sealed` → `day_captured_shown`
   (a full 3/3 day) → `vacation_finished` → `vacation_revealed` → `share_completed`.
+- **Not shown yet:** `vacation_revealed.plan` / `wait_minutes` and `reveal_planned` (V7, 1.1). They
+  need GA4 custom dimensions `plan` and metrics `wait_minutes`, `hours_ahead` registered first.
 - **Crash-free users** per version = 1 − (Crashlytics users with a fatal event ÷
   GA4 active users on that `appVersion`).
 - **Store numbers:** not connected. App Store Connect Analytics needs a JWT from

@@ -264,11 +264,12 @@ function legend(items) {
 function toplineHtml(t) {
   const tiles = [
     ["Active users", t.activeUsers],
+    ["Real users", t.realUsers, "No debug builds, emulators, simulators or QA devices"],
     ["New users", t.newUsers],
     ["Vacations created", t.vacationsCreated],
     ["Vacations revealed", t.vacationsRevealed],
   ];
-  return `<div class="tiles">${tiles.map(([l, v]) => `<div class="tile"><span class="tile-label">${l}</span><span class="tile-value">${fmt(v || 0)}</span></div>`).join("")}</div>`;
+  return `<div class="tiles">${tiles.map(([l, v, hint]) => `<div class="tile"${hint ? ` title="${esc(hint)}"` : ""}><span class="tile-label">${l}</span><span class="tile-value">${fmt(v || 0)}</span></div>`).join("")}</div>`;
 }
 
 function funnelHtml(steps) {

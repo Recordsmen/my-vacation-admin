@@ -4,11 +4,16 @@
   "android": {
     "topline": {
       "activeUsers": 842,
+      "realUsers": 817,
       "newUsers": 613,
       "vacationsCreated": 524,
       "vacationsRevealed": 176
     },
     "funnel": [
+      {
+        "key": "onboarding_done",
+        "users": 672
+      },
       {
         "key": "vacation_created",
         "users": 498
@@ -104,11 +109,16 @@
   "ios": {
     "topline": {
       "activeUsers": 1264,
+      "realUsers": 1226,
       "newUsers": 902,
       "vacationsCreated": 791,
       "vacationsRevealed": 288
     },
     "funnel": [
+      {
+        "key": "onboarding_done",
+        "users": 1013
+      },
       {
         "key": "vacation_created",
         "users": 751

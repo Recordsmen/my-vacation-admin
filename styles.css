@@ -98,7 +98,7 @@ body.loading .cards { opacity: .45; pointer-events: none; }
 .card-empty { margin: 12px 0 0; color: var(--faint); font-size: 13px; }
 
 /* Stat tiles */
-.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+.tiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 14px; }
 .tile { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 12px; background: var(--paper); }
 .tile-label { color: var(--muted); font-size: 13px; font-weight: 500; }
 .tile-value { font-family: var(--font); font-weight: 600; font-size: 32px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }

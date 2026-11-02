@@ -376,7 +376,7 @@ function render(m, errors, range) {
   const crashes = m.crashes || {};
   const html = [
     card("Top line", m.topline ? toplineHtml(m.topline) : "", { span: 12, key: "topline", errors,
-      sub: `${share} · ${{ all: "Android + iOS", android: "Android", ios: "iOS" }[prefs.platform]}${prefs.includeQa ? " · QA devices included" : " · QA devices excluded"}` }),
+      sub: `${share} · ${{ all: "Android + iOS", android: "Android", ios: "iOS" }[prefs.platform]}${prefs.includeQa ? " · test devices included" : " · test devices excluded"}` }),
     card("Funnel", m.funnel ? funnelHtml(m.funnel) : "", { span: 7, key: "funnel", errors, empty: m.funnel && !m.funnel[0].users,
       sub: "Users who fired each step’s event in the range." }),
     card("Slots", m.slots ? slotsHtml(m.slots) : "", { span: 5, key: "slots", errors, empty: m.slots && isEmpty(m.slots.sealed) && isEmpty(m.slots.missed),
@@ -388,7 +388,7 @@ function render(m, errors, range) {
     card("Shares by target", m.shareTarget ? barList(regroup(m.shareTarget, target), { label: String }) : "", { key: "shareTarget", errors, empty: isEmpty(m.shareTarget) }),
     card("Collage styles viewed", m.collages ? barList(m.collages) : "", { key: "collages", errors, empty: isEmpty(m.collages) }),
     card("Crashes", Object.keys(crashes).map((p) => crashPlatformHtml(p, crashes[p])).join(""), { span: 12, key: "crashes", errors,
-      sub: "Crash-free users = 1 − users with a fatal crash ÷ active users of that version (GA4, QA devices included). Crashlytics data arrives by daily BigQuery export." }),
+      sub: "Crash-free users = 1 − users with a fatal crash ÷ active users of that version (GA4; test devices as the toggle says). Crashlytics data arrives by daily BigQuery export." }),
     card("App languages", m.languages ? barList(m.languages, { label: language }) : "", { span: 6, key: "languages", errors, empty: isEmpty(m.languages), sub: "Active users by app_language." }),
     card("Vacation types", m.vacationTypes ? barList(m.vacationTypes) : "", { span: 6, key: "vacationTypes", errors, empty: isEmpty(m.vacationTypes), sub: "Vacations created by type." }),
     card("Store numbers", storeHtml(), { span: 12, data: false }),

@@ -81,9 +81,10 @@ BigQuery dataset (the project owner has both).
 - **Range:** today, 7 d, 30 d (both including today) or custom. Dates are the
   GA4 property's time zone; BigQuery uses UTC partition dates.
 - **Platform:** GA4 `platform` = Android / iOS; crashes show one table per platform.
-- **QA devices:** users with user property `qa=true` are excluded unless
-  *Include QA devices* is on. Crashlytics can't see that property, so crash-free %
-  uses all users.
+- **Test devices:** excluded from every card unless *Include test devices (QA, emulators)* is on:
+  rows with user property `qa=true` and rows whose `deviceModel` is an emulator or simulator (none,
+  `(not set)`, bare `iPhone`/`iPad`, `sdk_gphone*`, …, see `TEST_MODEL_RE` in `sources.js`). Crashlytics
+  has no `qa`, so there the same model rule applies to `device.model`. *Real users* always excludes them.
 - **Funnel:** users who fired each step's event in the range (open funnel, not a
   strict sequence): `onboarding_done` → `vacation_created` → `photo_sealed` → `day_captured_shown`
   (a full 3/3 day) → `vacation_finished` → `vacation_revealed` → `share_completed`.

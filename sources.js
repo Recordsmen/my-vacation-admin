@@ -71,11 +71,19 @@ async function loadMetadata(token, propertyId) {
   return new Set((meta.dimensions || []).map((d) => d.apiName));
 }
 
-function gaFilter(f, known, { eventNames, qa = !f.includeQa } = {}) {
+// Test devices: QA (`qa=true`) and emulator/simulator models. The same models are dropped from Crashlytics.
+// No model (Android SDK images often report none), the bare "iPhone"/"iPad" of the iOS simulator, an SDK image
+// name, or the CPU name Crashlytics reports for a simulator. Builds from 1.0.0 (4) don't send from them at all.
+const TEST_MODEL_RE = "^$|^\\(not set\\)$|^iPhone$|^iPad$|^(arm64|x86_64|i386)$|.*(sdk_gphone|Android SDK built for|Emulator|Simulator).*";
+
+function gaFilter(f, known, { eventNames, test = !f.includeQa } = {}) {
   const ex = [];
   if (eventNames) ex.push({ filter: { fieldName: "eventName", inListFilter: { values: eventNames } } });
   if (f.platform !== "all") ex.push({ filter: { fieldName: "platform", stringFilter: { matchType: "EXACT", value: PLATFORM_VALUE[f.platform] } } });
-  if (qa && known.has("customUser:qa")) ex.push({ notExpression: { filter: { fieldName: "customUser:qa", stringFilter: { matchType: "EXACT", value: "true" } } } });
+  if (test) {
+    ex.push({ notExpression: { filter: { fieldName: "deviceModel", stringFilter: { matchType: "FULL_REGEXP", value: TEST_MODEL_RE, caseSensitive: false } } } });
+    if (known.has("customUser:qa")) ex.push({ notExpression: { filter: { fieldName: "customUser:qa", stringFilter: { matchType: "EXACT", value: "true" } } } });
+  }
   return ex.length ? { andGroup: { expressions: ex } } : undefined;
 }
 
@@ -87,13 +95,13 @@ function requireDims(known, dims) {
   }
 }
 
-async function runReport(ctx, { dimensions = [], metrics, eventNames, qa }) {
+async function runReport(ctx, { dimensions = [], metrics, eventNames, test }) {
   requireDims(ctx.known, dimensions);
   const res = await api(ctx.token, `${GA_DATA}/properties/${ctx.propertyId}:runReport`, {
     dateRanges: [{ startDate: ctx.f.start, endDate: ctx.f.end }],
     dimensions: dimensions.map((name) => ({ name })),
     metrics: metrics.map((name) => ({ name })),
-    dimensionFilter: gaFilter(ctx.f, ctx.known, { eventNames, qa }),
+    dimensionFilter: gaFilter(ctx.f, ctx.known, { eventNames, test }),
     limit: 1000,
   });
   return (res.rows || []).map((r) => ({
@@ -112,25 +120,19 @@ function tally(rows, di = 0, mj = 0) {
   return out;
 }
 
-// Emulators and simulators: no model (Android SDK images often report none), the bare "iPhone"/"iPad"
-// of the iOS simulator, or an SDK image name. Builds from 1.0.0 (4) don't send from them at all.
-function isTestModel(model) {
-  const m = (model || "").trim();
-  return !m || m === "(not set)" || m === "iPhone" || m === "iPad" || /sdk_gphone|Android SDK built for|Emulator|Simulator/i.test(m);
-}
 
 const GA_SECTIONS = {
   async topline(ctx) {
     const [[users], events, models] = await Promise.all([
       runReport(ctx, { metrics: ["activeUsers", "newUsers"] }),
       runReport(ctx, { dimensions: ["eventName"], metrics: ["eventCount"], eventNames: ["vacation_created", "vacation_revealed"] }),
-      // Real users: QA devices out whatever the toggle says, emulators and simulators out by model.
-      runReport(ctx, { dimensions: ["deviceModel"], metrics: ["activeUsers"], qa: true }),
+      // Real users: test devices out whatever the toggle says.
+      runReport(ctx, { metrics: ["activeUsers"], test: true }),
     ]);
     const ev = tally(events);
     return {
       activeUsers: users ? users.m[0] : 0,
-      realUsers: models.filter((r) => !isTestModel(r.d[0])).reduce((n, r) => n + r.m[0], 0),
+      realUsers: models[0] ? models[0].m[0] : 0,
       newUsers: users ? users.m[1] : 0,
       vacationsCreated: ev.vacation_created || 0,
       vacationsRevealed: ev.vacation_revealed || 0,
@@ -210,7 +212,8 @@ async function bq(ctx, sql, params) {
 
 async function crashesFor(ctx, platform, gaUsersByVersion) {
   const table = `\`${ctx.cfg.gcpProject}.${ctx.cfg.crashlyticsDataset}.${ctx.cfg.crashlyticsTables[platform]}\``;
-  const where = "DATE(event_timestamp) BETWEEN @start AND @end";
+  const where = "DATE(event_timestamp) BETWEEN @start AND @end"
+    + (ctx.f.includeQa ? "" : ` AND NOT REGEXP_CONTAINS(LOWER(IFNULL(device.model, '')), r'${TEST_MODEL_RE.toLowerCase()}')`);
   const params = { start: ctx.dates.start, end: ctx.dates.end };
   let versions, issues;
   try {
@@ -242,10 +245,10 @@ async function crashesFor(ctx, platform, gaUsersByVersion) {
 }
 
 async function loadCrashes(ctx) {
-  // Crashlytics can't tell QA devices apart, so the user base for crash-free %
-  // includes QA devices too, whatever the toggle says.
+  // Crashlytics has no `qa`: test devices are dropped there by model only, and the GA user base below by
+  // the same rule (plus `qa`), unless the toggle includes them.
   const rows = ctx.propertyId
-    ? await runReport({ ...ctx, f: { ...ctx.f, platform: "all" } }, { dimensions: ["platform", "appVersion"], metrics: ["activeUsers"], qa: false })
+    ? await runReport({ ...ctx, f: { ...ctx.f, platform: "all" } }, { dimensions: ["platform", "appVersion"], metrics: ["activeUsers"] })
     : [];
   const users = { android: {}, ios: {} };
   for (const r of rows) {

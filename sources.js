@@ -14,14 +14,21 @@
  *   reminders    { <slot or kind>: opens }
  *   shareKind    { <kind>: count }      shareTarget { <target>: count }
  *   collages     { <style>: views }
- *   languages    { <app_language>: users }
+ *   links        { opened, created, shared, revoked, regenerated, failed }   (share links, counts of each event)
+ *   languages    { <app_language>: users }       countries { <country>: users }
+ *   plus         { paywall_shown, purchase_started, purchase_completed, purchase_restored }   (counts of each event)
+ *   groups       { group_trip_created, group_join_requested, group_join_decided, group_revealed }
+ *   film         { trip_film_created, trip_film_shared, trip_film_saved }
+ *   backup       { backup_enabled, backup_snapshot_completed, backup_snapshot_failed, backup_disabled }
  *   vacationTypes{ <type>: vacations }
  *   crashes      { android|ios: { versions:[{version, activeUsers, crashedUsers}],
  *                                 issues:[{id, title, subtitle, type, events, users, lastSeen}] } }
  */
 
+// An open funnel: users who fired each event in the range. first_open is Firebase's own (a new install);
+// onboarding_done isn't a step, since a reinstall or an update skips the onboarding.
 const FUNNEL = [
-  { key: "onboarding_done", label: "Finished onboarding" },
+  { key: "first_open", label: "Installed (first open)" },
   { key: "vacation_created", label: "Created a vacation" },
   { key: "photo_sealed", label: "Sealed ≥1 photo" },
   { key: "day_captured_shown", label: "Full day (3/3)" },
@@ -29,6 +36,17 @@ const FUNNEL = [
   { key: "vacation_revealed", label: "Revealed" },
   { key: "share_completed", label: "Shared" },
 ];
+
+// Feature cards: the count of each event, in this order.
+const PLUS_EVENTS = ["paywall_shown", "purchase_started", "purchase_completed", "purchase_restored"];
+const GROUP_EVENTS = ["group_trip_created", "group_join_requested", "group_join_decided", "group_revealed"];
+const FILM_EVENTS = ["trip_film_created", "trip_film_shared", "trip_film_saved"];
+const BACKUP_EVENTS = ["backup_enabled", "backup_snapshot_completed", "backup_snapshot_failed", "backup_disabled"];
+
+async function eventCounts(ctx, names) {
+  const ev = tally(await runReport(ctx, { dimensions: ["eventName"], metrics: ["eventCount"], eventNames: names }));
+  return Object.fromEntries(names.map((n) => [n, ev[n] || 0]));
+}
 
 const PLATFORM_VALUE = { android: "Android", ios: "iOS" };
 
@@ -180,9 +198,25 @@ const GA_SECTIONS = {
     return { shareKind: tally(rows, 0), shareTarget: tally(rows, 1) };
   },
 
+  // Share links (share-link.md §12): one count per event. Views of the pages are server-side only (no GA on /v/).
+  async links(ctx) {
+    const names = ["share_link_opened", "share_link_created", "share_link_shared", "share_link_revoked", "share_link_regenerated", "share_link_failed"];
+    const ev = tally(await runReport(ctx, { dimensions: ["eventName"], metrics: ["eventCount"], eventNames: names }));
+    return Object.fromEntries(names.map((n) => [n.replace("share_link_", ""), ev[n] || 0]));
+  },
+
   async collages(ctx) {
     return tally(await runReport(ctx, { dimensions: ["customEvent:style"], metrics: ["eventCount"], eventNames: ["collage_viewed"] }));
   },
+
+  async countries(ctx) {
+    return tally(await runReport(ctx, { dimensions: ["country"], metrics: ["activeUsers"] }));
+  },
+
+  async plus(ctx) { return eventCounts(ctx, PLUS_EVENTS); },
+  async groups(ctx) { return eventCounts(ctx, GROUP_EVENTS); },
+  async film(ctx) { return eventCounts(ctx, FILM_EVENTS); },
+  async backup(ctx) { return eventCounts(ctx, BACKUP_EVENTS); },
 
   async languages(ctx) {
     return tally(await runReport(ctx, { dimensions: ["customUser:app_language"], metrics: ["activeUsers"] }));

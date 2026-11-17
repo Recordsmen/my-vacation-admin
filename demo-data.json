@@ -11,8 +11,8 @@
     },
     "funnel": [
       {
-        "key": "onboarding_done",
-        "users": 672
+        "key": "first_open",
+        "users": 1400
       },
       {
         "key": "vacation_created",
@@ -104,6 +104,46 @@
       "trip": 141,
       "weekend": 96,
       "holidays": 105
+    },
+    "links": {
+      "opened": 88,
+      "created": 52,
+      "shared": 71,
+      "revoked": 6,
+      "regenerated": 3,
+      "failed": 4
+    },
+    "countries": {
+      "United States": 310,
+      "Germany": 180,
+      "Ukraine": 160,
+      "United Kingdom": 120,
+      "Israel": 90,
+      "Poland": 70,
+      "Brazil": 60
+    },
+    "plus": {
+      "paywall_shown": 520,
+      "purchase_started": 64,
+      "purchase_completed": 31,
+      "purchase_restored": 5
+    },
+    "groups": {
+      "group_trip_created": 18,
+      "group_join_requested": 61,
+      "group_join_decided": 57,
+      "group_revealed": 9
+    },
+    "film": {
+      "trip_film_created": 140,
+      "trip_film_shared": 52,
+      "trip_film_saved": 37
+    },
+    "backup": {
+      "backup_enabled": 22,
+      "backup_snapshot_completed": 130,
+      "backup_snapshot_failed": 4,
+      "backup_disabled": 2
     }
   },
   "ios": {
@@ -116,8 +156,8 @@
     },
     "funnel": [
       {
-        "key": "onboarding_done",
-        "users": 1013
+        "key": "first_open",
+        "users": 1120
       },
       {
         "key": "vacation_created",
@@ -211,6 +251,46 @@
       "trip": 236,
       "weekend": 128,
       "holidays": 153
+    },
+    "links": {
+      "opened": 104,
+      "created": 63,
+      "shared": 90,
+      "revoked": 8,
+      "regenerated": 2,
+      "failed": 5
+    },
+    "countries": {
+      "United States": 248,
+      "Germany": 144,
+      "Ukraine": 128,
+      "United Kingdom": 96,
+      "Israel": 72,
+      "Poland": 56,
+      "Brazil": 48
+    },
+    "plus": {
+      "paywall_shown": 416,
+      "purchase_started": 51,
+      "purchase_completed": 24,
+      "purchase_restored": 4
+    },
+    "groups": {
+      "group_trip_created": 14,
+      "group_join_requested": 48,
+      "group_join_decided": 45,
+      "group_revealed": 7
+    },
+    "film": {
+      "trip_film_created": 112,
+      "trip_film_shared": 41,
+      "trip_film_saved": 29
+    },
+    "backup": {
+      "backup_enabled": 17,
+      "backup_snapshot_completed": 104,
+      "backup_snapshot_failed": 3,
+      "backup_disabled": 1
     }
   },
   "crashes": {

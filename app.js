@@ -272,15 +272,17 @@ function toplineHtml(t) {
   return `<div class="tiles">${tiles.map(([l, v, hint]) => `<div class="tile"${hint ? ` title="${esc(hint)}"` : ""}><span class="tile-label">${l}</span><span class="tile-value">${fmt(v || 0)}</span></div>`).join("")}</div>`;
 }
 
+// Bars share one scale, the biggest step: an open funnel can grow from one step to the next (people who
+// installed before the range still create and open trips in it), and then "% of prev" means nothing.
 function funnelHtml(steps) {
-  const first = steps[0]?.users || 0;
+  const max = Math.max(1, ...steps.map((s) => s.users));
   return `<div class="funnel">${steps.map((s, i) => {
     const meta = FUNNEL.find((f) => f.key === s.key);
     const prev = i ? steps[i - 1].users : null;
     return `<div class="funnel-row" title="${esc(meta.label)}: ${nf.format(s.users)} users">
       <span class="funnel-label">${esc(meta.label)}<small><code>${esc(s.key)}</code></small></span>
-      <span class="bar-track"><span class="bar" style="width:${first ? (s.users / first) * 100 : 0}%"></span></span>
-      <span class="funnel-value">${fmt(s.users)} <small>${i ? `${pct(s.users, prev)} of prev` : "users"}</small></span>
+      <span class="bar-track"><span class="bar" style="width:${(s.users / max) * 100}%"></span></span>
+      <span class="funnel-value">${fmt(s.users)} <small>${i ? (prev && s.users <= prev ? `${pct(s.users, prev)} of prev` : "— of prev") : "users"}</small></span>
     </div>`;
   }).join("")}</div>`;
 }
@@ -386,9 +388,16 @@ function render(m, errors, range) {
     card("Reminders opened", m.reminders ? barList(m.reminders) : "", { key: "reminders", errors, empty: isEmpty(m.reminders), sub: "By slot (or kind for non-slot reminders)." }),
     card("Shares by kind", m.shareKind ? barList(m.shareKind) : "", { key: "shareKind", errors, empty: isEmpty(m.shareKind) }),
     card("Shares by target", m.shareTarget ? barList(regroup(m.shareTarget, target), { label: String }) : "", { key: "shareTarget", errors, empty: isEmpty(m.shareTarget) }),
+    card("Share links", m.links ? barList(m.links, { order: ["opened", "created", "shared", "revoked", "regenerated", "failed"] }) : "", { key: "links", errors, empty: isEmpty(m.links),
+      sub: "Link screen opened → link created → copied / shared / QR; turned off, regenerated, failed. Page views stay on the server." }),
     card("Collage styles viewed", m.collages ? barList(m.collages) : "", { key: "collages", errors, empty: isEmpty(m.collages) }),
     card("Crashes", Object.keys(crashes).map((p) => crashPlatformHtml(p, crashes[p])).join(""), { span: 12, key: "crashes", errors,
       sub: "Crash-free users = 1 − users with a fatal crash ÷ active users of that version (GA4; test devices as the toggle says). Crashlytics data arrives by daily BigQuery export." }),
+    card("My Vacation+", m.plus ? barList(m.plus, { order: PLUS_EVENTS }) : "", { span: 6, key: "plus", errors, empty: isEmpty(m.plus), sub: "Paywall views and purchases (events)." }),
+    card("Group trips", m.groups ? barList(m.groups, { order: GROUP_EVENTS }) : "", { span: 6, key: "groups", errors, empty: isEmpty(m.groups), sub: "Created, join requests, approvals, opened together." }),
+    card("Trip Film", m.film ? barList(m.film, { order: FILM_EVENTS }) : "", { span: 6, key: "film", errors, empty: isEmpty(m.film), sub: "Films made, shared and saved." }),
+    card("Cloud backup", m.backup ? barList(m.backup, { order: BACKUP_EVENTS }) : "", { span: 6, key: "backup", errors, empty: isEmpty(m.backup), sub: "Turned on, snapshots, failures." }),
+    card("Countries", m.countries ? barList(m.countries, { label: String }) : "", { span: 6, key: "countries", errors, empty: isEmpty(m.countries), sub: "Active users by country (GA4, from the IP)." }),
     card("App languages", m.languages ? barList(m.languages, { label: language }) : "", { span: 6, key: "languages", errors, empty: isEmpty(m.languages), sub: "Active users by app_language." }),
     card("Vacation types", m.vacationTypes ? barList(m.vacationTypes) : "", { span: 6, key: "vacationTypes", errors, empty: isEmpty(m.vacationTypes), sub: "Vacations created by type." }),
     card("Store numbers", storeHtml(), { span: 12, data: false }),
